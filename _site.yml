@@ -1,0 +1,8 @@
+name: "dat-website"
+output_dir: "."
+navbar:
+  title: "My 3530 Website"
+  left:
+    - text: "Home"
+      href: index.html
+    
