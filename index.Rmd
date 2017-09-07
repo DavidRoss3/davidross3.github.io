@@ -1,2 +1,12 @@
+---
+title: "Untitled"
+author: "David Ross"
+date: "9/7/2017"
+output: html_document
+---
 
-This website will eventually be filled with all of the things that result in an "A" in STT 3530.
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+Whatever I want
