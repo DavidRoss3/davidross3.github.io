@@ -1,5 +1,5 @@
 ---
-title: "Untitled"
+title: ""
 author: "David Ross"
 date: "9/7/2017"
 output: html_document
@@ -9,4 +9,8 @@ output: html_document
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
-(Whatever I want)^2
+James Webb Telescope (no context)
+
+```{r,echo = FALSE}
+knitr::include_graphics("jwst_1.jpg")
+```
