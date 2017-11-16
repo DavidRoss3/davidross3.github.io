@@ -226,8 +226,6 @@ During the average week in Seattle, which days were the most popular for bicycle
 #Number of trips by Day of Week
 start_date_ym$wd <- wday(start_date_ym$start_date, label = TRUE)
 
-head(start_date_ym)
-
 start_date_ym %>%
     group_by(wd,Season) %>%
       summarise(N = n()) %>%
@@ -241,33 +239,57 @@ start_date_ym %>%
 
 
 
-
+Lets examine how trip frequency varies throughout the average week, separated again by season.
 
 ```{r,trip_daily}
 #Numbr of trips by time of day
 
-#start_date_ym %>%
- # group_by(Hour = hour())
-
+start_date_ym %>%
+  group_by(Hour = hour(start_dt),Season,wd) %>%
+    summarize(N=n()) %>%
+      ggplot(aes(x=Hour,y=N,col=Season,group=Season)) +
+      geom_point() +
+      geom_line() +
+      theme_bw() +
+      labs(x="Hour",y="Number of Trips") +
+      facet_wrap(~ wd, ncol =2)
 
 ```
 
 
 
 
+This company's business model was such that a member could ride a bike for 45 minutes without incurring an additional fee. Short term users were limited to 30 minutes ride before incurring additional fees. Lets see how often users of different types incurred extra fees by exceeding these time limits. The red line in these graphs will show the time cutoff for both user types.
 
+```{r,label="trip_timelimit"}
+start_date_ym <- mutate(start_date_ym,timelimit = ifelse(usertype == "Member",45,30))
 
-
-```{r,label = "trip_member",fig.cap = ""}
 start_date_ym %>%
-  filter(usertype != "") %>%
-    group_by(ym,Season,usertype) %>%
-      summarize(N=n()) %>%
-        ggplot(aes(x=ym,y=N,color = Season,group = usertype)) +
-        geom_point() +
-        geom_line() +
-        theme_bw() +
-        labs(y = "Total Trips per month",x = "date")
+  filter(usertype !="") %>%
+      group_by(tripduration,trip_id,usertype,timelimit) %>%
+          summarize(N=n()) %>%
+            ggplot(aes(x=tripduration/60,fill=usertype), group = usertype) +
+            geom_histogram(binwidth = 2,col = "black") +
+            xlim(1,60) +
+            facet_grid(.~usertype) +
+            scale_fill_manual(values=c("light green","purple")) +
+            labs(x="Trip duration (minutes)",y="Number of Trips") +
+            geom_vline(aes(xintercept = timelimit),linetype = "dashed", col = "red")
+
+```
+
+#### **Demographics**
+
+Lets look at the age of riders, and how often riders from that age group rent bicycles from the company
+
+```{r,label = "member_demographics",fig.cap = ""}
+
+trip_2$usertype <- as.factor(trip_2$usertype)
+
+trip_age <- trip_2 %>% mutate(age = year(start_dt) - birthyear)
+
+hist(trip_age$age, main = "Rider Demographics - Age", xlab = "Rider Age", ylab = "Trip Frequency", col = "#56B4E9", breaks = 25)
+
 ```
 
 
