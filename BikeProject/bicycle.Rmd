@@ -1,31 +1,42 @@
 ---
-title: "Seattle Bicycle Sharing Data Analysis"
+title: "STT 3530 Project"
 author: "David Ross"
 date: "10/31/2017"
 output: html_document
+
+right:
+  -icon: fa-github fa-lg
+  -href: https://github.com/davidross3/davidross3.github.io/
+  
 ---
 
 ```{r setup, include=FALSE, echo=FALSE}
 knitr::opts_chunk$set(echo = TRUE, message = FALSE, warning = FALSE)
 ```
+# **Bicycle Sharing in Seattle**
+
+#### A replication of Amber Thomas's work
 
 
-```{r}
-# For data manipulation and tidying
-library(dplyr)
-library(lubridate)
-library(tidyr)
-library(scales)
-# For mapping
-library(ggmap)
-library(mapproj)
+## **Introduction**
 
-# For data visualizations
-library(ggplot2)
+This is an exploration of a dataset from a bicycle-sharing company which operated in Seattle, WA from Oct 2014 to Aug 2016. Start by loading necessary r-packages.
 
-# For modeling and machine learning
-library(caret)
 
+```{r,label = "libraries",results = "hide"}
+
+PackagesUsed <- c("ggplot2", "ggmap","tidyr","lubridate","dplyr","mapproj","bookdown","scales")
+
+# Write bib information
+knitr::write_bib(PackagesUsed, file = "./packages.bib")
+
+# Load packages
+lapply(PackagesUsed, library, character.only = TRUE)
+```
+
+## **Import the data**
+
+```{r,label = "import"}
 
 station <- read.csv(file = "station.csv", header = TRUE, 
                     stringsAsFactors = FALSE)
@@ -35,6 +46,28 @@ trip <- read.csv(file = "trip.csv", header = TRUE,
 
 weather <- read.csv(file = "weather.csv", header = TRUE, 
                     stringsAsFactors = FALSE)
+```
+
+There are 3 data sets that we will be looking at:
+
+`r paste("station")` - includes information about every station run by the company, where customers would pick up and drop off bicycles.
+
+`r paste("trip")` - shows a representative sample of individual trips made by customers, including specifics about the individual trips.
+
+`r paste("weather")` - details the weather conditions in Seattle during the period in which this company was in operation. 
+
+
+
+
+
+
+## **Visualizations**
+
+#### Mapping the Stations
+
+We will start by mapping the station (lat,lon) points onto a map of Seattle.
+
+```{r,label = "map"}
 
 # Load the correct map
 mymap <- get_map(location = "Seattle", maptype = "roadmap", zoom = 12)
@@ -45,6 +78,15 @@ geom_point(aes(x = long, y = lat), data = station, alpha = 0.7, color = "darkred
 
 ```
 
+
+
+
+
+#### Station Installations
+
+How many stations were installed after the company's initial launch? How many bicycle docks are at each station? How many stations experienced a change in dock count? Did they gain or lose docks?
+
+All of this and more can be answered with some R code! 
 
 ```{r, label = "docks"}
 
@@ -69,6 +111,12 @@ ggplot(station,aes(x=install_dockcount)) +
   labs(title = "Station Dock Counts",x = "Dock Count",y = "Number of Stations")
 ```
 
+
+
+
+
+Now for the bicycle docks at each station:
+
 ```{r, label = "stations"}
 #Look at changes between current and initial dock counts
 dock_change <- station %>% 
@@ -90,7 +138,17 @@ ggmap(mymap) +
 
 ```
 
-```{r}
+
+
+
+
+## Trips
+
+Moving on to the trips dataset. First, some manipulation with lubridate will allow for better use of this information.
+
+Then, a good starting point would be to graph "number of trips" for every date in the dataset.
+
+```{r,"trip_duration"}
 
 # Make the start and stop dates into POSIXct objects
 trip_2 <- trip %>% mutate(start_dt = mdy_hm(starttime), stop_dt = mdy_hm(stoptime))
@@ -111,7 +169,15 @@ trip_2 %>%
       geom_line() + 
       labs(x = "Date", y = "Number of trips per day") + 
       theme_bw()
+```
 
+
+
+
+
+Now, looking at monthly trends of trip frequency, color coded by season:
+
+```{r}
 start_date_ym <- trip_2 %>%
   mutate(ym = paste(year(start_date), 
     month(start_date), sep = "/"), Season = ifelse(ym %in% c("2014/10", "2014/11"), "Fall", ifelse(ym  %in% c("2014/12", "2015/1", "2015/2"), "Winter", ifelse(ym %in% c("2015/3", "2015/4", "2015/5"), "Spring", "Summer"))))
@@ -132,7 +198,15 @@ start_date_ym%>%
       geom_line(group = 1) +
       labs(x = "Date", y = "Number of trips per month") +
       theme_bw()
+```
 
+
+
+
+
+We can easily add standard error bars to this graph, as these are indeed averages of trip frequency.
+
+```{r}
 ggplot(Trip_Duration_Month,aes(x = ym, y = Avg, color = Season)) +
   geom_point() +
   geom_line(group = 1) +
@@ -140,5 +214,60 @@ ggplot(Trip_Duration_Month,aes(x = ym, y = Avg, color = Season)) +
   theme_bw() +
   geom_errorbar(aes(ymin = Avg - se, ymax = Avg + se))
 
+```
+
+
+
+
+
+During the average week in Seattle, which days were the most popular for bicycle rentals? 
+
+```{r,label = "trip_week"}
+#Number of trips by Day of Week
+start_date_ym$wd <- wday(start_date_ym$start_date, label = TRUE)
+
+head(start_date_ym)
+
+start_date_ym %>%
+    group_by(wd,Season) %>%
+      summarise(N = n()) %>%
+        ggplot( aes(x = wd , y = N,col = Season)) +
+        geom_point() +
+        geom_line()
 
 ```
+
+
+
+
+
+
+
+```{r,trip_daily}
+#Numbr of trips by time of day
+
+#start_date_ym %>%
+ # group_by(Hour = hour())
+
+
+```
+
+
+
+
+
+
+
+```{r,label = "trip_member",fig.cap = ""}
+start_date_ym %>%
+  filter(usertype != "") %>%
+    group_by(ym,Season,usertype) %>%
+      summarize(N=n()) %>%
+        ggplot(aes(x=ym,y=N,color = Season,group = usertype)) +
+        geom_point() +
+        geom_line() +
+        theme_bw() +
+        labs(y = "Total Trips per month",x = "date")
+```
+
+
