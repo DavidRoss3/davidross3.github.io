@@ -1,0 +1,290 @@
+---
+title: "STT 3530 Project"
+author: "David Ross"
+date: "10/31/2017"
+output: bookdown::html_document2
+---
+
+```{r setup, include=FALSE, echo=FALSE}
+knitr::opts_chunk$set(echo = TRUE, message = FALSE, warning = FALSE)
+```
+# **Bicycle Sharing in Seattle**
+
+#### A replication of Amber Thomas's work
+
+
+## **Introduction**
+
+This is an exploration of a dataset from a bicycle-sharing company which operated in Seattle, WA from Oct 2014 to Aug 2016. Start by loading necessary r-packages.
+
+
+```{r,label = "libraries",results = "hide",echo="FALSE"}
+
+PackagesUsed <- c("ggplot2", "ggmap","tidyr","lubridate","dplyr","mapproj","bookdown","scales")
+
+# Write bib information
+knitr::write_bib(PackagesUsed, file = "./packages.bib")
+
+# Load packages
+lapply(PackagesUsed, library, character.only = TRUE)
+```
+
+## **Import the data**
+
+```{r,label = "import"}
+
+station <- read.csv(file = "station.csv", header = TRUE, 
+                    stringsAsFactors = FALSE)
+
+trip <- read.csv(file = "trip.csv", header = TRUE, 
+                 stringsAsFactors = FALSE)
+
+weather <- read.csv(file = "weather.csv", header = TRUE, 
+                    stringsAsFactors = FALSE)
+```
+
+There are 3 data sets that we will be looking at:
+
+`r paste("station")` - includes information about every station run by the company, where customers would pick up and drop off bicycles.
+
+`r paste("trip")` - shows a representative sample of individual trips made by customers, including specifics about the individual trips.
+
+`r paste("weather")` - details the weather conditions in Seattle during the period in which this company was in operation. 
+
+
+
+
+
+
+## **Visualizations**
+
+#### Mapping the Stations
+
+We will start by mapping the station (lat,lon) points onto a map of Seattle.
+
+```{r,label = "map"}
+
+# Load the correct map
+mymap <- get_map(location = "Seattle", maptype = "roadmap", zoom = 12)
+
+# Plot a single point for each Station ID
+ggmap(mymap) + 
+geom_point(aes(x = long, y = lat), data = station, alpha = 0.7, color = "darkred", size = 2)
+
+```
+
+
+
+
+
+#### Station Installations
+
+How many stations were installed after the company's initial launch? How many bicycle docks are at each station? How many stations experienced a change in dock count? Did they gain or lose docks?
+
+All of this and more can be answered with some R code! 
+
+```{r, label = "docks"}
+
+########################################
+## When were these stations installed?##
+########################################
+
+station$install_date <- mdy(station$install_date)
+
+# How many times were new stations installed?
+station %>% summarise(n_distinct(install_date))
+
+# How many stations were installed on each date?
+station %>% group_by(install_date) %>% summarise(count = n()) %>% 
+  arrange(install_date)
+
+
+#Plot current docks at each station as a histogram
+
+ggplot(station,aes(x=install_dockcount)) +
+  geom_histogram(binwidth=1,fill = "#0000CC") +
+  labs(title = "Station Dock Counts",x = "Dock Count",y = "Number of Stations")
+```
+
+
+
+
+
+Now for the bicycle docks at each station:
+
+```{r, label = "stations"}
+#Look at changes between current and initial dock counts
+dock_change <- station %>% 
+  group_by(station_id) %>% 
+   select(station_id, long, lat, ends_with("dockcount")) %>%
+    mutate(dock_change = current_dockcount - install_dockcount)
+
+#subset the dock_change df, removing all entries with zero change in dock count
+dock_change <- dock_change[dock_change$dock_change != 0,]
+
+# Plot stations that had a non-zero change in dock count.
+ggmap(mymap) +
+  geom_point(aes(x = long, y = lat,color = dock_change), data = dock_change, alpha = 0.7, size = 4)
+   
+#Plot stations on the same map according to their current dock count
+ggmap(mymap) + 
+  geom_point(aes(x = long, y = lat,color = current_dockcount), data = station, alpha = 0.7, size = 2) +
+  scale_colour_gradient(low = "blue", high = "black")
+
+```
+
+
+
+
+
+## Trips
+
+Moving on to the trips dataset. First, some manipulation with lubridate will allow for better use of this information.
+
+Then, a good starting point would be to graph "number of trips" for every date in the dataset.
+
+```{r,"trip_duration"}
+
+# Make the start and stop dates into POSIXct objects
+trip_2 <- trip %>% mutate(start_dt = mdy_hm(starttime), stop_dt = mdy_hm(stoptime))
+
+# Recode the dates
+trip_2 <- trip_2 %>% mutate(start_date = paste(month(start_dt), 
+    day(start_dt), year(start_dt), sep = "/"))
+trip_2$start_date <- mdy(trip_2$start_date)
+
+trip_2 <- trip_2 %>% mutate(stop_date = paste(month(stop_dt), 
+    day(stop_dt), year(stop_dt), sep = "/"))
+trip_2$stop_date <- mdy(trip_2$stop_date)
+
+trip_2 %>% 
+  group_by(start_date) %>%
+    summarize(N = n()) %>%
+      ggplot(aes(x = start_date, y = N)) + 
+      geom_line() + 
+      labs(x = "Date", y = "Number of trips per day") + 
+      theme_bw()
+```
+
+
+
+
+
+Now, looking at monthly trends of trip frequency, color coded by season:
+
+```{r}
+start_date_ym <- trip_2 %>%
+  mutate(ym = paste(year(start_date), 
+    month(start_date), sep = "/"), Season = ifelse(ym %in% c("2014/10", "2014/11"), "Fall", ifelse(ym  %in% c("2014/12", "2015/1", "2015/2"), "Winter", ifelse(ym %in% c("2015/3", "2015/4", "2015/5"), "Spring", "Summer"))))
+
+# Convert Trip Duration from Seconds to Minutes
+Trip_Duration_Month <- start_date_ym %>%
+  mutate(trip_duration_min = tripduration/60) %>%
+    group_by(ym) %>%
+      select(ym, trip_duration_min) %>% 
+        summarise(Avg = mean(trip_duration_min), sd = sd(trip_duration_min)) %>%
+          mutate(se = sd/sqrt(n()), Season = ifelse(ym %in% c("2014/10", "2014/11"), "Fall", ifelse(ym  %in% c("2014/12", "2015/1", "2015/2"), "Winter", ifelse(ym %in% c("2015/3", "2015/4", "2015/5"), "Spring", "Summer"))))
+
+start_date_ym%>%
+  group_by(ym, Season) %>%
+    summarize(N = n()) %>%
+      ggplot(aes(x = ym, y = N, color = Season)) +
+      geom_point() +
+      geom_line(group = 1) +
+      labs(x = "Date", y = "Number of trips per month") +
+      theme_bw()
+```
+
+
+
+
+
+We can easily add standard error bars to this graph, as these are indeed averages of trip frequency.
+
+```{r}
+ggplot(Trip_Duration_Month,aes(x = ym, y = Avg, color = Season)) +
+  geom_point() +
+  geom_line(group = 1) +
+  labs(x = "Date", y = "Average Trip Duration (In Minutes)") +
+  theme_bw() +
+  geom_errorbar(aes(ymin = Avg - se, ymax = Avg + se))
+
+```
+
+
+
+
+
+During the average week in Seattle, which days were the most popular for bicycle rentals? 
+
+```{r,label = "trip_week"}
+#Number of trips by Day of Week
+start_date_ym$wd <- wday(start_date_ym$start_date, label = TRUE)
+
+start_date_ym %>%
+    group_by(wd,Season) %>%
+      summarise(N = n()) %>%
+        ggplot( aes(x = wd , y = N,col = Season)) +
+        geom_point() +
+        geom_line()
+
+```
+
+
+
+
+
+Lets examine how trip frequency varies throughout the average week, separated again by season.
+
+```{r,trip_daily}
+#Numbr of trips by time of day
+
+start_date_ym %>%
+  group_by(Hour = hour(start_dt),Season,wd) %>%
+    summarize(N=n()) %>%
+      ggplot(aes(x=Hour,y=N,col=Season,group=Season)) +
+      geom_point() +
+      geom_line() +
+      theme_bw() +
+      labs(x="Hour",y="Number of Trips") +
+      facet_wrap(~ wd, ncol =2)
+
+```
+
+
+
+
+This company's business model was such that a member could ride a bike for 45 minutes without incurring an additional fee. Short term users were limited to 30 minutes ride before incurring additional fees. Lets see how often users of different types incurred extra fees by exceeding these time limits. The red line in these graphs will show the time cutoff for both user types.
+
+```{r,label="trip_timelimit"}
+start_date_ym <- mutate(start_date_ym,timelimit = ifelse(usertype == "Member",45,30))
+
+start_date_ym %>%
+  filter(usertype !="") %>%
+      group_by(tripduration,trip_id,usertype,timelimit) %>%
+          summarize(N=n()) %>%
+            ggplot(aes(x=tripduration/60,fill=usertype), group = usertype) +
+            geom_histogram(binwidth = 2,col = "black") +
+            xlim(1,60) +
+            facet_grid(.~usertype) +
+            scale_fill_manual(values=c("light green","purple")) +
+            labs(x="Trip duration (minutes)",y="Number of Trips") +
+            geom_vline(aes(xintercept = timelimit),linetype = "dashed", col = "red")
+
+```
+
+#### **Demographics**
+
+Lets look at the age of riders, and how often riders from that age group rent bicycles from the company
+
+```{r,label = "member_demographics",fig.cap = ""}
+
+trip_2$usertype <- as.factor(trip_2$usertype)
+
+trip_age <- trip_2 %>% mutate(age = year(start_dt) - birthyear)
+
+hist(trip_age$age, main = "Rider Demographics - Age", xlab = "Rider Age", ylab = "Trip Frequency", col = "#56B4E9", breaks = 25)
+
+```
+
+
