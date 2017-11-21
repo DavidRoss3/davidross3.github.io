@@ -1,0 +1,6 @@
+"0","start_date_ym %>%"
+"0","    group_by(wd,Season) %>%"
+"0","      summarise(N = n()) %>%"
+"0","        ggplot( aes(x = wd , y = N,col = Season)) +"
+"0","        geom_point() +"
+"0","        geom_line()"

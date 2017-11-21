@@ -1,0 +1,3 @@
+"0","trip_2$usertype <- as.factor(trip_2$usertype)"
+"0","trip_age <- trip_2 %>% mutate(age = year(start_dt) - birthyear)"
+"0","hist(trip_age$age, main = ""Rider Demographics - Age"", xlab = ""Rider Age"", ylab = ""Trip Frequency"", col = ""#56B4E9"", breaks = 25)"

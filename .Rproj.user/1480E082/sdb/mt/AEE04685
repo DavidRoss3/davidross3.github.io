@@ -1,0 +1,21 @@
+{
+    "collab_server" : "",
+    "contents" : "name: \"dat-website\"\noutput_dir: \".\"\nnavbar:\n  title: \"My 3530 Website\"\n  left:\n    - text: \"Home\"\n      href: index.html\n    - text: ",
+    "created" : 1505419299877.000,
+    "dirty" : false,
+    "encoding" : "UTF-8",
+    "folds" : "",
+    "hash" : "1748478281",
+    "id" : "AEE04685",
+    "lastKnownWriteTime" : 1504816263,
+    "last_content_update" : 1504816263,
+    "path" : "~/davidross3/_site.yml",
+    "project_path" : "_site.yml",
+    "properties" : {
+        "tempName" : "Untitled1"
+    },
+    "relative_order" : 2,
+    "source_on_save" : false,
+    "source_window" : "",
+    "type" : "yaml"
+}

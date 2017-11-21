@@ -1,0 +1,17 @@
+name: "David3530"
+output_dir: "."
+navbar:
+  title: "David Ross"
+  left:
+    - text: "Home"
+      href: index.Rmd
+    - text: "Projects"
+      href: ./BikeProject/project_buffer.Rmd
+    
+  right:
+    - icon: fa-github fa-lg
+      href: https://github.com/DavidRoss3/davidross3.github.io       
+output:
+  html_document:
+    theme: yeti
+    

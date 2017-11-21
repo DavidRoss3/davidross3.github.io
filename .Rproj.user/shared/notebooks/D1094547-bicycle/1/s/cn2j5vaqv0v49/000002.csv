@@ -1,0 +1,8 @@
+"0","#Number of trips by Day of Week"
+"0","start_date_ym$wd <- wday(start_date_ym$start_date, label = TRUE)"
+"0","start_date_ym %>%"
+"0","  group_by(Season, wd) %>%"
+"0","  summarize(N=n()) %>%"
+"0","    ggplot(aes(x=wd,y=N),color = Season) +"
+"0","    geom_point() +"
+"0","    geom_line(group = 1)"

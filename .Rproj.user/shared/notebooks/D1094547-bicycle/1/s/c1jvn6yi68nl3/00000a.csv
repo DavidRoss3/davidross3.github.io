@@ -1,0 +1,3 @@
+"0","# How many stations were installed on each date?"
+"0","station %>% group_by(install_date) %>% summarise(count = n()) %>% "
+"0","  arrange(install_date)"

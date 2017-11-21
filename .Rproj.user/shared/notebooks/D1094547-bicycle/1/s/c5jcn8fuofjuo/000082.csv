@@ -1,0 +1,3 @@
+"0","#Number of trips by Day of Week"
+"0","start_date_ym$wd <- wday(start_date_ym$start_date, label = TRUE)"
+"0","head(start_date_ym)"

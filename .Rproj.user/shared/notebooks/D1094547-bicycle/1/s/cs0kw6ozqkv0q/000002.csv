@@ -1,0 +1,6 @@
+"0","station <- read.csv(file = ""station.csv"", header = TRUE, "
+"0","                    stringsAsFactors = FALSE)"
+"0","trip <- read.csv(file = ""trip.csv"", header = TRUE, "
+"0","                 stringsAsFactors = FALSE)"
+"0","weather <- read.csv(file = ""weather.csv"", header = TRUE, "
+"0","                    stringsAsFactors = FALSE)"

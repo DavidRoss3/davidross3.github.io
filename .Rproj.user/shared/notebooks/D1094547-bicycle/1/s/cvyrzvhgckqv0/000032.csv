@@ -1,0 +1,6 @@
+"0","########################################"
+"0","## When were these stations installed?##"
+"0","########################################"
+"0","station$install_date <- mdy(station$install_date)"
+"0","# How many times were new stations installed?"
+"0","station %>% summarise(n_distinct(install_date))"

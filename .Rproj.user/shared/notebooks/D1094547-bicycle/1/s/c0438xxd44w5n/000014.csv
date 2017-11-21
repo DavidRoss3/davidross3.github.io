@@ -1,0 +1,6 @@
+"0","ggplot(Trip_Duration_Month,aes(x = ym, y = Avg, color = Season)) +"
+"0","  geom_point() +"
+"0","  geom_line(group = 1) +"
+"0","  labs(x = ""Date"", y = ""Average Trip Duration (In Minutes)"") +"
+"0","  theme_bw() +"
+"0","  geom_errorbar(aes(ymin = Avg - se, ymax = Avg + se))"

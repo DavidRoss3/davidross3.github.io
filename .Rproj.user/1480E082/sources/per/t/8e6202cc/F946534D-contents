@@ -1,0 +1,11 @@
+---
+output: html_document
+---
+
+
+
+James Webb Telescope (no context)
+
+```{r, echo = FALSE}
+knitr::include_graphics("jwst_1.jpg")
+```

@@ -1,0 +1,23 @@
+{
+    "collab_server" : "",
+    "contents" : "",
+    "created" : 1511299408703.000,
+    "dirty" : false,
+    "encoding" : "UTF-8",
+    "folds" : "",
+    "hash" : "2212301553",
+    "id" : "FB5FCDEF",
+    "lastKnownWriteTime" : 1511299430,
+    "last_content_update" : 1511299430770,
+    "path" : "~/davidross3/project_buffer.Rmd",
+    "project_path" : "project_buffer.Rmd",
+    "properties" : {
+        "cursorPosition" : "7,0",
+        "scrollLine" : "0",
+        "tempName" : "Untitled1"
+    },
+    "relative_order" : 3,
+    "source_on_save" : false,
+    "source_window" : "",
+    "type" : "r_markdown"
+}

@@ -1,0 +1,4 @@
+"0","#Plot current docks at each station as a histogram"
+"0","ggplot(station,aes(x=install_dockcount)) +"
+"0","  geom_histogram(binwidth=1,fill = ""#0000CC"") +"
+"0","  labs(title = ""Station Dock Counts"",x = ""Dock Count"",y = ""Number of Stations"")"

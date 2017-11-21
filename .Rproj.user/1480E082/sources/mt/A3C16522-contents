@@ -1,0 +1,16 @@
+name: "dat-website"
+output_dir: "."
+navbar:
+  title: David Ross - 3530 Website
+  left:
+  - text: "Home"
+    href: index.html
+  - text: "Bicycle Sharing"
+    href: project.html
+  right:
+    -icon: fa-github fa-lg
+    -href: https://github.com/davidross3/davidross3.github.io/
+output:
+  html_document:
+    theme: yeti
+    highlight: textmate

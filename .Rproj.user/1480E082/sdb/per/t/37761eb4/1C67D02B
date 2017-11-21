@@ -1,0 +1,21 @@
+{
+    "collab_server" : "",
+    "contents" : "\n\n\nlibrary(readxl)\nlibrary(ggplot2)\nlibrary(dplyr)\n\nDF <- read_excel(\"TMP.xlsx\",sheet = 1,range=NULL,col_names = TRUE,col_types=NULL,skip=0)\nhead(DF)\nDF$Age_Cohort <- gsub(42898,\"6-12\",DF$Age_Cohort)\nDF$Age_Cohort <- gsub(\"0 - 5\",\"0-5\",DF$Age_Cohort)\ntable(DF$Ethnicity)\n\nmales <- subset(DF,DF$gender=Male)\nqA <- mean(males$Expenditures)\n\nhispanics <- subset(DF,DF$Ethnicity=\"Hispanic\")\nqB <- mean(hispanics$Expenditures)\n\nadults <- subset(DF,DF$Age_Cohort=\"22-50\")\nqC <- mean(adults$Expenditures)\n\nWNHmales <- subset(males,males$Ethnicity=\"White not Hispanic\")\nqD <- mean(WNHmales$Expenditures)\n\nAsianAdults <- subset(adults,adults$Ethnicity=\"Asian\")\nqE <- mean(AsianAdults$Expenditures)\n\n",
+    "created" : 1506454829212.000,
+    "dirty" : false,
+    "encoding" : "UTF-8",
+    "folds" : "",
+    "hash" : "1615448697",
+    "id" : "1C67D02B",
+    "lastKnownWriteTime" : 1506458285,
+    "last_content_update" : 1506458285122,
+    "path" : "~/davidross3/9_26_17_assignment.R",
+    "project_path" : "9_26_17_assignment.R",
+    "properties" : {
+        "tempName" : "Untitled1"
+    },
+    "relative_order" : 3,
+    "source_on_save" : false,
+    "source_window" : "",
+    "type" : "r_source"
+}

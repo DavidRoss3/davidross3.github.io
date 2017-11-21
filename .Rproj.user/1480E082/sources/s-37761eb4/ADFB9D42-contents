@@ -1,0 +1,144 @@
+---
+title: "Seattle Bicycle Sharing Data Analysis"
+author: "David Ross"
+date: "10/31/2017"
+output: html_document
+---
+
+```{r setup, include=FALSE, echo=FALSE}
+knitr::opts_chunk$set(echo = TRUE, message = FALSE, warning = FALSE)
+```
+
+
+```{r}
+# For data manipulation and tidying
+library(dplyr)
+library(lubridate)
+library(tidyr)
+library(scales)
+# For mapping
+library(ggmap)
+library(mapproj)
+
+# For data visualizations
+library(ggplot2)
+
+# For modeling and machine learning
+library(caret)
+
+
+station <- read.csv(file = "station.csv", header = TRUE, 
+                    stringsAsFactors = FALSE)
+
+trip <- read.csv(file = "trip.csv", header = TRUE, 
+                 stringsAsFactors = FALSE)
+
+weather <- read.csv(file = "weather.csv", header = TRUE, 
+                    stringsAsFactors = FALSE)
+
+# Load the correct map
+mymap <- get_map(location = "Seattle", maptype = "roadmap", zoom = 12)
+
+# Plot a single point for each Station ID
+ggmap(mymap) + 
+geom_point(aes(x = long, y = lat), data = station, alpha = 0.7, color = "darkred", size = 2)
+
+```
+
+
+```{r, label = "docks"}
+
+########################################
+## When were these stations installed?##
+########################################
+
+station$install_date <- mdy(station$install_date)
+
+# How many times were new stations installed?
+station %>% summarise(n_distinct(install_date))
+
+# How many stations were installed on each date?
+station %>% group_by(install_date) %>% summarise(count = n()) %>% 
+  arrange(install_date)
+
+
+#Plot current docks at each station as a histogram
+
+ggplot(station,aes(x=install_dockcount)) +
+  geom_histogram(binwidth=1,fill = "#0000CC") +
+  labs(title = "Station Dock Counts",x = "Dock Count",y = "Number of Stations")
+```
+
+```{r, label = "stations"}
+#Look at changes between current and initial dock counts
+dock_change <- station %>% 
+  group_by(station_id) %>% 
+   select(station_id, long, lat, ends_with("dockcount")) %>%
+    mutate(dock_change = current_dockcount - install_dockcount)
+
+#subset the dock_change df, removing all entries with zero change in dock count
+dock_change <- dock_change[dock_change$dock_change != 0,]
+
+# Plot stations that had a non-zero change in dock count.
+ggmap(mymap) +
+  geom_point(aes(x = long, y = lat,color = dock_change), data = dock_change, alpha = 0.7, size = 4)
+   
+#Plot stations on the same map according to their current dock count
+ggmap(mymap) + 
+  geom_point(aes(x = long, y = lat,color = current_dockcount), data = station, alpha = 0.7, size = 2) +
+  scale_colour_gradient(low = "blue", high = "black")
+
+```
+
+```{r}
+
+# Make the start and stop dates into POSIXct objects
+trip_2 <- trip %>% mutate(start_dt = mdy_hm(starttime), stop_dt = mdy_hm(stoptime))
+
+# Recode the dates
+trip_2 <- trip_2 %>% mutate(start_date = paste(month(start_dt), 
+    day(start_dt), year(start_dt), sep = "/"))
+trip_2$start_date <- mdy(trip_2$start_date)
+
+trip_2 <- trip_2 %>% mutate(stop_date = paste(month(stop_dt), 
+    day(stop_dt), year(stop_dt), sep = "/"))
+trip_2$stop_date <- mdy(trip_2$stop_date)
+
+trip_2 %>% 
+  group_by(start_date) %>%
+    summarize(N = n()) %>%
+      ggplot(aes(x = start_date, y = N)) + 
+      geom_line() + 
+      labs(x = "Date", y = "Number of trips per day") + 
+      theme_bw()
+
+start_date_ym <- trip_2 %>%
+  mutate(ym = paste(year(start_date), 
+    month(start_date), sep = "/"), Season = ifelse(ym %in% c("2014/10", "2014/11"), "Fall", ifelse(ym  %in% c("2014/12", "2015/1", "2015/2"), "Winter", ifelse(ym %in% c("2015/3", "2015/4", "2015/5"), "Spring", "Summer"))))
+
+# Convert Trip Duration from Seconds to Minutes
+Trip_Duration_Month <- start_date_ym %>%
+  mutate(trip_duration_min = tripduration/60) %>%
+    group_by(ym) %>%
+      select(ym, trip_duration_min) %>% 
+        summarise(Avg = mean(trip_duration_min), sd = sd(trip_duration_min)) %>%
+          mutate(se = sd/sqrt(n()), Season = ifelse(ym %in% c("2014/10", "2014/11"), "Fall", ifelse(ym  %in% c("2014/12", "2015/1", "2015/2"), "Winter", ifelse(ym %in% c("2015/3", "2015/4", "2015/5"), "Spring", "Summer"))))
+
+start_date_ym%>%
+  group_by(ym, Season) %>%
+    summarize(N = n()) %>%
+      ggplot(aes(x = ym, y = N, color = Season)) +
+      geom_point() +
+      geom_line(group = 1) +
+      labs(x = "Date", y = "Number of trips per month") +
+      theme_bw()
+
+ggplot(Trip_Duration_Month,aes(x = ym, y = Avg, color = Season)) +
+  geom_point() +
+  geom_line(group = 1) +
+  labs(x = "Date", y = "Average Trip Duration (In Minutes)") +
+  theme_bw() +
+  geom_errorbar(aes(ymin = Avg - se, ymax = Avg + se))
+
+
+```

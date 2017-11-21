@@ -1,0 +1,21 @@
+{
+    "collab_server" : "",
+    "contents" : "---\ntitle: \"\"\nauthor: \"David Ross\"\ndate: \"9/7/2017\"\noutput: html_document\n---\n\n```{r setup, include=FALSE}\nknitr::opts_chunk$set(echo = TRUE)\n```\n\nJames Webb Telescope (no context)\n\n```{r,echo = FALSE}\nknitr::include_graphics(\"jwst_1.jpg\")\n```\n",
+    "created" : 1505246253689.000,
+    "dirty" : false,
+    "encoding" : "UTF-8",
+    "folds" : "",
+    "hash" : "2901238488",
+    "id" : "16866118",
+    "lastKnownWriteTime" : 1505246237,
+    "last_content_update" : 1505246237,
+    "path" : "~/davidross3/index.Rmd",
+    "project_path" : "index.Rmd",
+    "properties" : {
+        "tempName" : "Untitled1"
+    },
+    "relative_order" : 1,
+    "source_on_save" : false,
+    "source_window" : "",
+    "type" : "r_markdown"
+}

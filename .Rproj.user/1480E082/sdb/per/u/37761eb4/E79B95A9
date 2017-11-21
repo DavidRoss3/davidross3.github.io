@@ -1,0 +1,21 @@
+{
+    "collab_server" : "",
+    "contents" : "library(dplyr)\n\nstr(ChickWeight)\nChickWeight %>%\n  group_by(Diet) %>%\n  summarize(MWG=mean(weight),SD=sd(weight))\n\n",
+    "created" : 1506627905540.000,
+    "dirty" : true,
+    "encoding" : "",
+    "folds" : "",
+    "hash" : "4085869113",
+    "id" : "E79B95A9",
+    "lastKnownWriteTime" : 489626271750,
+    "last_content_update" : 1506628090886,
+    "path" : null,
+    "project_path" : null,
+    "properties" : {
+        "tempName" : "Untitled1"
+    },
+    "relative_order" : 4,
+    "source_on_save" : false,
+    "source_window" : "",
+    "type" : "r_source"
+}
