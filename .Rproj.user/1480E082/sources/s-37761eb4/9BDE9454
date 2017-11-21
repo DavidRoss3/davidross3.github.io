@@ -1,0 +1,23 @@
+{
+    "collab_server" : "",
+    "contents" : "",
+    "created" : 1511299632894.000,
+    "dirty" : false,
+    "encoding" : "UTF-8",
+    "folds" : "",
+    "hash" : "1362907632",
+    "id" : "9BDE9454",
+    "lastKnownWriteTime" : 1511299718,
+    "last_content_update" : 1511299718938,
+    "path" : "~/davidross3/BikeProject/bicycle.Rmd",
+    "project_path" : "BikeProject/bicycle.Rmd",
+    "properties" : {
+        "cursorPosition" : "3,12",
+        "last_setup_crc32" : "",
+        "scrollLine" : "0"
+    },
+    "relative_order" : 4,
+    "source_on_save" : false,
+    "source_window" : "",
+    "type" : "r_markdown"
+}

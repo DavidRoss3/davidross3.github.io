@@ -1,9 +1,17 @@
-name: "dat-website"
+name: "David3530"
 output_dir: "."
 navbar:
-  title: "David Ross - 3530 Website"
+  title: "David Ross"
   left:
     - text: "Home"
       href: index.html
-    - text: "Bicycle Sharing"
-      href: project.html
+    - text: "Projects"
+      href: project_buffer.html
+    
+  right:
+    - icon: fa-github fa-lg
+      href: https://github.com/DavidRoss3/davidross3.github.io       
+output:
+  html_document:
+    theme: yeti
+    

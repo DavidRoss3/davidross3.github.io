@@ -1,16 +1,25 @@
 ---
-title: ""
-author: "David Ross"
-date: "9/7/2017"
 output: html_document
 ---
 
-```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
+An animation of a 1D Electromagnetic wave (credit: wiki-media commons)
+
+```{r, echo = FALSE}
+knitr::include_graphics("EM-Wave.gif")
 ```
 
-James Webb Telescope (no context)
 
-```{r,echo = FALSE}
+
+An animation of a 1D wave packet, with phase velocity opposing the group velocity (credit: wiki-media commons)
+
+```{r, echo = FALSE}
+knitr::include_graphics("Wave_opposite-group-phase-velocity.gif")
+```
+
+
+
+James Webb Telescope
+
+```{r, echo = FALSE}
 knitr::include_graphics("jwst_1.jpg")
 ```
