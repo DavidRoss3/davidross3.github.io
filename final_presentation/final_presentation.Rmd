@@ -1,0 +1,83 @@
+---
+title: "Untitled"
+author: "David Ross"
+date: "12/8/2017"
+output: beamer_presentation
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(ggplot2)
+library(ggmap)
+library(dplyr)
+```
+
+``` {r}
+
+surface_stations <- read.table(file="weather_stations.txt" , sep=" " , quote="" , dec = "." , numerals = "no.loss")
+boone = c(lon=-81.668611,lat=36.211389)
+
+domain_map <- get_map(location=boone , zoom=7 , maptype="hybrid" , source = "google")
+ggmap(domain_map) + 
+  geom_point(aes( x=V3 , y=V2 ) , data = surface_stations , color="yellow" , size=1.5 , alpha = 0.9)
+
+
+```
+```{r}
+
+boone_station <- read.table(file="KTNB_2013-06-01_2013-09-30.txt" , sep=" " , quote="" , dec = "." , row.names=NULL , numerals = "no.loss")
+str(boone_station)
+
+mutate(boone_station,hour_num = 0.0)
+
+for(i in 1:nrow(boone_station) ){ boone_station$hour_num[i] = i }
+
+a <- c(0,0,0,0,0,0,0,0)
+b <- c(0,0,0,0,0,0,0,0)
+
+for(i in 1:8){
+  a[i] <- 168*(i-1) + 1
+  b[i] <- 168*i + 1
+}
+
+boone_station_w1 <- boone_station[a[1]:b[1],]
+boone_station_w2 <- boone_station[a[2]:b[2],]
+boone_station_w3 <- boone_station[a[3]:b[3],]
+boone_station_w4 <- boone_station[a[4]:b[4],]
+boone_station_w5 <- boone_station[a[5]:b[5],]
+boone_station_w6 <- boone_station[a[6]:b[6],]
+boone_station_w7 <- boone_station[a[7]:b[7],]
+boone_station_w8 <- boone_station[a[8]:b[8],]
+
+pw5_T <- ggplot( mapping = aes( x=hour_num , y=SEC ) , boone_station_w5)
+pw6_T <- ggplot( mapping = aes( x=hour_num , y=SEC ) , boone_station_w6)
+pw7_T <- ggplot( mapping = aes( x=hour_num , y=SEC ) , boone_station_w7)
+pw8_T <- ggplot( mapping = aes( x=hour_num , y=SEC ) , boone_station_w8)
+
+pw5_WS <- ggplot( mapping = aes( x=hour_num , y=TEMP_C ) , boone_station_w5)
+pw6_WS <- ggplot( mapping = aes( x=hour_num , y=TEMP_C ) , boone_station_w6)
+pw7_WS <- ggplot( mapping = aes( x=hour_num , y=TEMP_C ) , boone_station_w7)
+pw8_WS <- ggplot( mapping = aes( x=hour_num , y=TEMP_C ) , boone_station_w8)
+
+pw5_HU <- ggplot( mapping = aes( x=hour_num , y=PRECIPITATION_MM ) , boone_station_w5)
+pw6_HU <- ggplot( mapping = aes( x=hour_num , y=PRECIPITATION_MM ) , boone_station_w6)
+pw7_HU <- ggplot( mapping = aes( x=hour_num , y=PRECIPITATION_MM ) , boone_station_w7)
+pw8_HU <- ggplot( mapping = aes( x=hour_num , y=PRECIPITATION_MM ) , boone_station_w8)
+
+par(mfrow = c(3,4))
+pw5_T + geom_line(col="red") + labs(x = "Hrs. from 07/01/13" , y = "Temp. [C]" , title = "10m Temp in Boone")
+pw6_T + geom_line(col="red") + labs(x = "Hrs. from 07/08/13" , y = "Temp. [C]" , title = "10m Temp in Boone")
+pw7_T + geom_line(col="red") + labs(x = "Hrs. from 07/15/13" , y = "Temp. [C]" , title = "10m Temp in Boone")
+pw8_T + geom_line(col="red") + labs(x = "Hrs. from 07/22/13" , y = "Temp. [C]" , title = "10m Temp in Boone")
+
+pw5_WS + geom_line(col="green") + labs(x = "Hrs. from 07/01/13" , y = "Wind Speed [m/s]" , title = "10m WS in Boone")
+pw6_WS + geom_line(col="green") + labs(x = "Hrs. from 07/08/13" , y = "Wind Speed [m/s]" , title = "10m WS in Boone")
+pw7_WS + geom_line(col="green") + labs(x = "Hrs. from 07/15/13" , y = "Wind Speed [m/s]" , title = "10m WS in Boone")
+pw8_WS + geom_line(col="green") + labs(x = "Hrs. from 07/22/13" , y = "Wind Speed [m/s]" , title = "10m WS in Boone")
+
+pw5_HU + geom_line(col="blue") + labs(x = "Hrs. from 07/01/13" , y = "Relative Humidity [%]" , title = "10m humidity in Boone")
+pw6_HU + geom_line(col="blue") + labs(x = "Hrs. from 07/08/13" , y = "Relative Humidity [%]" , title = "10m humidity in Boone")
+pw7_HU + geom_line(col="blue") + labs(x = "Hrs. from 07/15/13" , y = "Relative Humidity [%]" , title = "10m humidity in Boone")
+pw8_HU + geom_line(col="blue") + labs(x = "Hrs. from 07/22/13" , y = "Relative Humidity [%]" , title = "10m humidity in Boone")
+
+```
