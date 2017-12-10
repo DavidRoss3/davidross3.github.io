@@ -1,0 +1,110 @@
+---
+title: "Data Science Final Presentation"
+author: "David Ross"
+date: "12/9/2017"
+output: html_document
+---
+
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(ggplot2)
+library(ggmap)
+library(dplyr)
+```
+
+#Simulation Domain Map Illustrated by Surface Weather Stations
+
+```{r, fig.width = 10,fig.height =10}
+surface_stations <- read.table(file = "weather.txt" , sep=" " , quote="" , dec = "." , numerals = "no.loss")
+boone = c(lon=-81.668611,lat=36.211389)
+
+domain_map <- get_map(location=boone , zoom=6 , maptype="hybrid" , source = "google")
+ggmap(domain_map) + 
+  geom_point(aes( x=V3 , y=V2 ) , data = surface_stations , color="yellow" , size=1.5 , alpha = 0.9)
+
+
+```
+
+
+
+
+```{r}
+
+boone_station <- read.table(file="~/davidross3/final_presentation/KTNB_2013-06-01_2013-09-30.txt" , sep=" " , quote="" , dec = "." , row.names=NULL , numerals = "no.loss")
+
+hours <- vector(mode="numeric", length=nrow(boone_station))
+for(i in 1:nrow(boone_station) ){ hours[i] = i }
+
+boone_station <- mutate(boone_station,hour_num = hours)
+boone_station <- as.data.frame(boone_station)
+
+a <- c(0,0,0,0,0,0,0,0)
+b <- c(0,0,0,0,0,0,0,0)
+
+for(i in 1:8){
+  a[i] <- 168*(i-1) + 1
+  b[i] <- 168*i
+}
+
+boone_station_w1 <- boone_station[a[1]:b[1],]
+boone_station_w2 <- boone_station[a[2]:b[2],]
+boone_station_w3 <- boone_station[a[3]:b[3],]
+boone_station_w4 <- boone_station[a[4]:b[4],]
+boone_station_w5 <- boone_station[a[5]:b[5],]
+boone_station_w6 <- boone_station[a[6]:b[6],]
+boone_station_w7 <- boone_station[a[7]:b[7],]
+boone_station_w8 <- boone_station[a[8]:b[8],]
+
+pw5_T <- ggplot( boone_station_w5, aes( x=hour_num , y=SEC ) )
+pw6_T <- ggplot( boone_station_w6, aes( x=hour_num , y=SEC ) )
+pw7_T <- ggplot( boone_station_w7, aes( x=hour_num , y=SEC ) )
+pw8_T <- ggplot( boone_station_w8, aes( x=hour_num , y=SEC ) )
+
+pw5_WS <- ggplot( boone_station_w5, aes( x=hour_num , y=TEMP_C ) )
+pw6_WS <- ggplot( boone_station_w6, aes( x=hour_num , y=TEMP_C ) )
+pw7_WS <- ggplot( boone_station_w7, aes( x=hour_num , y=TEMP_C ) )
+pw8_WS <- ggplot( boone_station_w8, aes( x=hour_num , y=TEMP_C ) )
+
+pw5_HU <- ggplot( boone_station_w5, aes( x=hour_num , y=PRECIPITATION_MM ) )
+pw6_HU <- ggplot( boone_station_w6, aes( x=hour_num , y=PRECIPITATION_MM ) )
+pw7_HU <- ggplot( boone_station_w7, aes( x=hour_num , y=PRECIPITATION_MM ) )
+pw8_HU <- ggplot( boone_station_w8, aes( x=hour_num , y=PRECIPITATION_MM ) )
+
+```
+
+#Temperature, Wind Speed and Humidity Plots in Boone during the weeks of July, 2013
+
+```{r}
+
+par(mfrow = c(3,4))
+
+  pw5_T + geom_line(col="red") + labs(x = "Hrs. from 06/01/13" , y = "Temp. [C]" , title = "10m Temp in Boone")
+  pw6_T + geom_line(col="red") + labs(x = "Hrs. from 06/01/13" , y = "Temp. [C]" , title = "10m Temp in Boone")
+  pw7_T + geom_line(col="red") + labs(x = "Hrs. from 06/01/13" , y = "Temp. [C]" , title = "10m Temp in Boone")
+  pw8_T + geom_line(col="red") + labs(x = "Hrs. from 06/01/13" , y = "Temp. [C]" , title = "10m Temp in Boone")
+
+  pw5_WS + geom_line(col="green") + labs(x = "Hrs. from 06/01/13" , y = "Wind Speed [m/s]" , title = "10m WS in Boone")
+  pw6_WS + geom_line(col="green") + labs(x = "Hrs. from 06/01/13" , y = "Wind Speed [m/s]" , title = "10m WS in Boone")
+  pw7_WS + geom_line(col="green") + labs(x = "Hrs. from 06/01/13" , y = "Wind Speed [m/s]" , title = "10m WS in Boone")
+  pw8_WS + geom_line(col="green") + labs(x = "Hrs. from 06/01/13" , y = "Wind Speed [m/s]" , title = "10m WS in Boone")
+
+  pw5_HU + geom_line(col="blue") + labs(x = "Hrs. from 06/01/13" , y = "Relative Humidity [%]" , title = "10m humidity in Boone")
+  pw6_HU + geom_line(col="blue") + labs(x = "Hrs. from 06/01/13" , y = "Relative Humidity [%]" , title = "10m humidity in Boone")
+  pw7_HU + geom_line(col="blue") + labs(x = "Hrs. from 06/01/13" , y = "Relative Humidity [%]" , title = "10m humidity in Boone")
+  pw8_HU + geom_line(col="blue") + labs(x = "Hrs. from 06/01/13" , y = "Relative Humidity [%]" , title = "10m humidity in Boone")
+
+```
+
+#Illustrating Diurnal Cycle with Humidity/Temperature overlay
+
+```{r}
+ggplot(boone_station_w4,aes(x=hour_num)) +
+  geom_line(aes(y=SEC),col="red") +
+  geom_line(aes(y=PRECIPITATION_MM*0.25),col="blue") +
+  geom_hline(aes(yintercept=25), color="blue",linetype = "dotted") +
+  labs(x = "Hrs. from 06/01/13" , y = "Temp. [C]" , title = "Temp vs. Humidity, Boone 06/22/2013 - 06/30/2013")
+
+```
+
+  
